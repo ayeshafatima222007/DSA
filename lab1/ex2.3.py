@@ -12,6 +12,5 @@ def power (n, k):
     if k == 1: 
         return n 
     else: 
-        return n * power (n, k-1) 
-
+        return n * power (n, k-1)  
 print(power(2,3))
