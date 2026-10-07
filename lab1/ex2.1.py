@@ -4,7 +4,6 @@ for i in range (11):
     sum += i 
 print(sum) 
 
-
 print("--Recursion--")
 def sum(n):
     if n==0:
