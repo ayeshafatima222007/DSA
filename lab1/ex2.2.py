@@ -15,5 +15,4 @@ def print_array(arr, index):
         print(arr[index])
         print_array(arr, index + 1)
 
-
 print_array(arr, 0)
