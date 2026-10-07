@@ -13,6 +13,7 @@ print(arr)
 
 print("--TO Do--")
 import numpy as np
+
 arr2=np.random.randint(min,max+1,n)
 print(arr2)
 
