@@ -6,7 +6,6 @@ def SearchA(Arr,x):
             result.append(i)
     return result
 
-
 #---Pronlem 2---
 def SearchB(Arr,x):
     result = []
