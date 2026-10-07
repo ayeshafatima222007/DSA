@@ -6,5 +6,4 @@ arr = lines.split()
 for s in arr: 
     num = int(s) 
     numbers.append(num) 
- 
 print(numbers) 
