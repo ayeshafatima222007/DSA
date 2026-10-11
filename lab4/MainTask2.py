@@ -285,7 +285,6 @@ class MainWindow(QMainWindow):
             self.worker.wait(5000)
         e.accept()
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     w = MainWindow()
