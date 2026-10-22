@@ -1,21 +1,3 @@
-"""
-search.py - Linear Search and Binary Search for the Journal Articles project.
-
-Linear() and Binary() are the class code (they return one index, or -1).
-FindAllLinear() / FindAllBinary() call them again to collect ALL matches.
-
-How the search page uses them
-  * "equals" on a column  -> Linear Search or Binary Search (your choice)
-      - Binary Search needs sorted data, so the column is sorted first with
-        Merge Sort (from sorting.py); that time is reported separately.
-  * contains / starts with / ends with / > >= < <=  -> linear scan of the rows
-    (Binary Search cannot do these, so it is only allowed with "equals").
-
-A condition is a dict:
-    {"field": "title", "op": "equals", "value": "heart", "negate": False, "join": "AND"}
-  negate : True = NOT        join : "AND" / "OR" (ignored for the first condition)
-Conditions are combined from left to right.
-"""
 import time
 
 from Sorting import RunSort, ColumnKind
@@ -29,11 +11,7 @@ SearchAlgorithms = {
     "Binary Search": "O(log n) after sorting",
 }
 
-
-# ---------------------------------------------------------------------------
-# Class code
-# ---------------------------------------------------------------------------
-
+ 
 def Linear(array, target):
     for i in range(len(array)):
         if array[i] == target:
@@ -53,13 +31,8 @@ def Binary(array, target):
             right = mid - 1
     return -1
 
-
-# ---------------------------------------------------------------------------
-# Find ALL matches (the class code stops at the first one)
-# ---------------------------------------------------------------------------
-
+ 
 def FindAllLinear(array, target):
-    """Indexes of every element equal to target (calls Linear again after each hit)."""
     found = []
     start = 0
     while True:
@@ -72,7 +45,6 @@ def FindAllLinear(array, target):
 
 
 def FindAllBinary(array, target):
-    """array must be sorted. Finds one hit with Binary, then walks over equal neighbours."""
     i = Binary(array, target)
     if i == -1:
         return []
@@ -84,13 +56,8 @@ def FindAllBinary(array, target):
         high += 1
     return list(range(low, high + 1))
 
-
-# ---------------------------------------------------------------------------
-# Conditions
-# ---------------------------------------------------------------------------
-
+ 
 def ToNumber(value):
-    """Return value as float, or None if it is not a number."""
     try:
         return float(str(value).strip())
     except ValueError:
@@ -98,14 +65,12 @@ def ToNumber(value):
 
 
 def KeyOf(row, field, kind):
-    """Value used for 'equals': lower-case text, or a number (None for empty cells)."""
     if kind == "text":
         return str(row.get(field, "")).lower()
     return ToNumber(row.get(field, ""))
 
 
 def MatchOne(row, field, op, value):
-    """Linear-scan test for one row (contains / starts with / ends with / equals / > >= < <=)."""
     cell = row.get(field, "")
     if op in TEXT_OPERATORS:
         c = str(cell).lower()
@@ -132,8 +97,6 @@ def MatchOne(row, field, op, value):
 
 
 def EqualsIds(rows, field, value, algo):
-    """ids of rows whose column equals value, found with Linear or Binary search.
-    Returns (set_of_ids, sort_time_ms)."""
     kind = ColumnKind(rows, field)
     if kind == "text":
         target = str(value).lower()
@@ -157,10 +120,6 @@ def EqualsIds(rows, field, value, algo):
 
 
 def SearchRows(rows, conditions, algo="Linear Search"):
-    """
-    Returns dict: rows (matches, original order), time_ms, prep_ms, algo, complexity, n
-    Raises ValueError when Binary Search is asked to do something other than 'equals'.
-    """
     t0 = time.perf_counter()
     all_ids = {id(r) for r in rows}
     result = None

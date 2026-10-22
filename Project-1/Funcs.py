@@ -1,4 +1,3 @@
-import random
 #----Insertion Sort----
 def InsertionSort(array, start, end):
     for i in range(start + 1, end + 1):

@@ -1,12 +1,6 @@
-"""CS200 Project 1 - Journal Articles manager (PyQt5).
-
-Needs Task2.py (the scraper), sorting.py and search.py in the same folder.
-Run:  python main.py
-
-Pages (left menu):  Data | Scraper | Searching | Sorting | Benchmark
-"""
 import sys
 
+#PyQt imports
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QThread, pyqtSignal
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
@@ -16,17 +10,20 @@ from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QListWidget, QStackedWidget, QFrame, QCheckBox,
 )
 
+#functions calling from 3 files
 from Scrapping import ScraperWorker, load_csv, save_csv, FIELDS
 from Search import SearchRows, SearchAlgorithms, OPERATORS, TEXT_OPERATORS, ToNumber
 from Sorting import RunSort, Benchmark, Algorithms, AlgoNames, ApplicableAlgorithms
 
+#constants
 NUMERIC = {"year", "citations", "references", "author_count"}
 SLOW_ALGOS = {"Bubble Sort", "Insertion Sort", "Selection Sort"}
 COLUMN_WIDTHS = {"doi": 180, "title": 380, "journal": 220, "publisher": 160}
 ORDERS = ["Ascending", "Descending"]
 SCOPES = ["Full dataset", "Filtered results"]
 
-STYLE = """
+#a long string just like css file
+STYLE = """           
 QWidget { font-size: 13px; }
 QWidget#page { background: #f3f4f6; }
 QLabel#brand { background: #111827; color: white; font-size: 16px; font-weight: bold; padding: 20px 18px 6px 18px; }
@@ -61,12 +58,12 @@ QHeaderView::section { background: #f3f4f6; padding: 7px; border: none; border-b
 """
 
 
-def pretty(field):
+def pretty(field):     #change author_count into Author Count
     return field.replace("_", " ").title()
 
 
 class FuncWorker(QThread):
-    """Runs any function in a background thread so the UI does not freeze."""
+    #Runs any function in a background thread so the UI does not freeze
     result = pyqtSignal(object)
     failed = pyqtSignal(str)
 
@@ -82,7 +79,7 @@ class FuncWorker(QThread):
 
 
 class ArticleModel(QAbstractTableModel):
-    """Shows `shown` (a list of row dicts)."""
+    #gives data to table=data,searching,sorting
 
     def __init__(self, rows=None):
         super().__init__()
@@ -118,7 +115,7 @@ class ArticleModel(QAbstractTableModel):
 
 
 class RowDialog(QDialog):
-    """Add / edit one article."""
+    #a small form of Add / edit one article
 
     def __init__(self, parent=None, row=None):
         super().__init__(parent)
@@ -154,8 +151,8 @@ class RowDialog(QDialog):
         self.accept()
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
+class MainWindow(QMainWindow):        #complete window
+    def __init__(self):        #side bar of 5 pages
         super().__init__()
         self.setWindowTitle("CS200 Project 1 - Journal Articles")
         self.resize(1300, 780)
@@ -205,7 +202,7 @@ class MainWindow(QMainWindow):
         self._update_count()
 
     # ---------- small UI helpers ----------
-    def _new_page(self, title, subtitle):
+    def _new_page(self, title, subtitle):       #Create an empty page with a heading and a subtitle
         page = QWidget()
         page.setObjectName("page")
         lay = QVBoxLayout(page)
@@ -219,7 +216,7 @@ class MainWindow(QMainWindow):
         lay.addWidget(s)
         return page, lay
 
-    def _card(self, title=None):
+    def _card(self, title=None):      # White card box with optional title
         f = QFrame()
         f.setObjectName("card")
         v = QVBoxLayout(f)
@@ -231,7 +228,7 @@ class MainWindow(QMainWindow):
             v.addWidget(t)
         return f, v
 
-    def _btn(self, text, primary=False, danger=False):
+    def _btn(self, text, primary=False, danger=False):      # Button (blue if primary, red text if danger)
         b = QPushButton(text)
         if primary:
             b.setProperty("primary", True)
@@ -239,7 +236,7 @@ class MainWindow(QMainWindow):
             b.setProperty("danger", True)
         return b
 
-    def _stat(self, caption):
+    def _stat(self, caption):       # Caption + value label for one statistic
         w = QWidget()
         v = QVBoxLayout(w)
         v.setContentsMargins(0, 0, 0, 0)
@@ -252,7 +249,7 @@ class MainWindow(QMainWindow):
         v.addWidget(val)
         return w, val
 
-    def _make_table(self, model):
+    def _make_table(self, model):      # Read-only table bound to a model
         t = QTableView()
         t.setModel(model)
         t.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -264,14 +261,14 @@ class MainWindow(QMainWindow):
             t.setColumnWidth(i, COLUMN_WIDTHS.get(f, 100))
         return t
 
-    def _column_combo(self):
+    def _column_combo(self):       # Dropdown of all column names
         c = QComboBox()
         for f in FIELDS:
             c.addItem(pretty(f), f)
         return c
 
     # ---------- page: Data ----------
-    def _data_page(self):
+    def _data_page(self):       #Table, Add/Edit/Delete buttons
         page, lay = self._new_page("Data", "All scraped articles. Double-click a row to edit it.")
         bar = QHBoxLayout()
         self.btn_add = self._btn("Add article", primary=True)
@@ -297,7 +294,7 @@ class MainWindow(QMainWindow):
         return page
 
     # ---------- page: Scraper ----------
-    def _scraper_page(self):
+    def _scraper_page(self):          #Target, URL, Start/Pause/Resume/Stop, progress bar
         page, lay = self._new_page("Scraper", "Collect articles from the Crossref API into articles.csv.")
 
         card, v = self._card("Settings")
@@ -349,7 +346,7 @@ class MainWindow(QMainWindow):
         return page
 
     # ---------- page: Searching ----------
-    def _search_page(self):
+    def _search_page(self):      #4 conditions, Linear/Binary
         page, lay = self._new_page("Searching",
                                    "Find articles with one or more conditions (Linear or Binary search).")
         card, v = self._card("Conditions")
@@ -427,7 +424,7 @@ class MainWindow(QMainWindow):
         return page
 
     def update_search_ops(self):
-        """Binary Search only supports 'equals'."""
+        #Binary Search only supports equals
         algo = self.search_algo.currentText()
         binary = algo == "Binary Search"
         self.search_algo_info.setText(SearchAlgorithms[algo])
@@ -480,7 +477,7 @@ class MainWindow(QMainWindow):
                 neg.setChecked(False)
 
     # ---------- page: Sorting ----------
-    def _sort_page(self):
+    def _sort_page(self):        #Column, algorithm, multi-level, scope
         page, lay = self._new_page("Sorting", "Sort by one or more columns. The original data is never reordered.")
 
         card, v = self._card("Options")
@@ -572,8 +569,7 @@ class MainWindow(QMainWindow):
     BENCH_HEADERS = ["Algorithm", "Complexity", "Stable", "Rows", "Time (ms)", "Comparisons", "Swaps", "Note"]
 
     def _bench_page(self):
-        page, lay = self._new_page("Benchmark",
-                                   "Run every sorting algorithm on one column and compare them.")
+        page, lay = self._new_page("Benchmark","Run every sorting algorithm on one column and compare them.")
         card, v = self._card("Options")
         row = QHBoxLayout()
         row.setSpacing(10)
@@ -591,8 +587,7 @@ class MainWindow(QMainWindow):
         row.addWidget(self.btn_bench)
         row.addStretch()
         v.addLayout(row)
-        hint = QLabel("Bubble, Insertion and Selection sort are O(n^2): keep the row count low (about 3000) "
-                      "or they take minutes.")
+        hint = QLabel("Bubble, Insertion and Selection sort are O(n^2): keep the row count low (about 3000) or they take minutes.")
         hint.setObjectName("hint")
         v.addWidget(hint)
         self.bench_status = QLabel("")
@@ -607,8 +602,7 @@ class MainWindow(QMainWindow):
         self.bench_table.verticalHeader().setVisible(False)
         self.bench_table.horizontalHeader().setStretchLastSection(True)
         lay.addWidget(self.bench_table, 1)
-        note = QLabel("Bold row = fastest. Swaps = element moves for Merge, Hybrid, Insertion, Shell, "
-                      "Counting, Radix and Bucket sort.")
+        note = QLabel("Bold row = fastest. Swaps = element moves for Merge, Hybrid, Insertion, Shell, Counting, Radix and Bucket sort.")
         note.setObjectName("hint")
         lay.addWidget(note)
 
@@ -616,7 +610,7 @@ class MainWindow(QMainWindow):
         self.btn_bench.clicked.connect(self.do_benchmark)
         return page
 
-    # ---------- state helpers ----------
+    # ---------- state helpers ----------     	Buttons lock/unlock, counts
     def _scrape_buttons(self, running, paused=False):
         self.btn_start.setEnabled(not running)
         self.btn_pause.setEnabled(running and not paused)
@@ -685,7 +679,7 @@ class MainWindow(QMainWindow):
 
     # ---------- sorting ----------
     def update_algo_choices(self):
-        """Grey out algorithms that cannot sort the chosen column (e.g. Radix on text)."""
+        #Grey out algorithms that cannot sort the chosen column (e.g. Radix on text)."""
         field = self.sort_col.currentData()
         ok = set(ApplicableAlgorithms(self.rows, field)) if self.rows else set(AlgoNames)
         item_model = self.sort_algo.model()
@@ -727,11 +721,21 @@ class MainWindow(QMainWindow):
         if not base:
             QMessageBox.information(self, "Sort", "Nothing to sort.")
             return
-        columns = [(self.sort_col.currentData(), self.sort_order.currentIndex() == 1)]
-        for c, o in self.extra_cols:
+        first = self.sort_col.currentData()
+        columns = [(first, self.sort_order.currentIndex() == 1)]
+        used = {first: "Sort by"}                      # kaunsa column kis level par use hua
+
+        for n, (c, o) in enumerate(self.extra_cols, start=2):
             f = c.currentData()
-            if f and f not in [x[0] for x in columns]:
-                columns.append((f, o.currentIndex() == 1))
+            if f is None:                              # "(none)" select hai to skip
+                continue
+            if f in used:                              # same column dobara select hua
+                QMessageBox.warning(self, "Sort",
+                f"'{c.currentText()}' is already selected in '{used[f]}'.\n"
+                f"Each column can be used only once in a multi-level sort.")
+                return                                 # sort nahi chalega
+            used[f] = f"Then by (level {n})"
+            columns.append((f, o.currentIndex() == 1))
         algo = self.sort_algo.currentText()
         if algo in SLOW_ALGOS and len(base) > 5000:
             if QMessageBox.question(self, "Slow sort",
@@ -795,6 +799,7 @@ class MainWindow(QMainWindow):
                     it.setForeground(Qt.gray)
                 t.setItem(i, j, it)
         t.resizeColumnsToContents()
+        t.setColumnWidth(1, t.columnWidth(1) + 30)
         t.horizontalHeader().setStretchLastSection(True)
         self.bench_status.setText(f"Done: column '{self.bench_title}', {results[0]['n']:,} rows tested.")
 
@@ -857,7 +862,7 @@ class MainWindow(QMainWindow):
         e.accept()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":        #it start the program
     app = QApplication(sys.argv)
     w = MainWindow()
     w.show()
