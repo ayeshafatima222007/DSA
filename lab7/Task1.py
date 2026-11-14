@@ -7,13 +7,13 @@ def mid_square_hash(k, n):
     middle =int(sq[start:start+2] )
     return middle % n 
   
-def folding_hash(k, n): 
-    s = str(k) 
-    total = 0  
-    for i in range (len(s),0,-2):
-        part = s [max(0,i-2):i]
-        total += int (part)
-
+def folding_hash(k, n):
+    s = str(k)
+    total = 0
+    for i in range(len(s), 0, -2):
+        part = s[max(0, i-2):i]
+        total += int(part)
+    return total % n
   
 keys = [56, 123, 456, 789, 1024] 
 n = 10 
